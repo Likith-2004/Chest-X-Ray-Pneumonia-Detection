@@ -1,4 +1,4 @@
-### 🩺 Chest X-Ray Pneumonia Detector with Grad-CAM
+### Chest X-Ray Pneumonia Detector with Grad-CAM
 
 ## Overview
 The **Chest X-Ray Pneumonia Detector** project leverages a Convolutional Neural Network (CNN) model (ResNet-18) to classify chest X-ray images for the detection of pneumonia. By automating this detection process, the system enables fast and reliable pre-screening. The project is designed to enhance diagnostic confidence by including Grad-CAM (Gradient-weighted Class Activation Mapping) to visualize the areas of the X-ray image that led to the model's prediction.
