@@ -22,7 +22,7 @@ To run this application, you will need Python and several essential libraries, i
 
 #### 1. Prerequisites
 
-* Python 3.x
+* Python 3.11
 * The trained PyTorch model file: **`pneumonia_unknown_model.pth`**
 * (Optional) A background image file: **`background.png`**
 
