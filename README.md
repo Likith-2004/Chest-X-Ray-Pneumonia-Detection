@@ -2,7 +2,7 @@
 
 This project provides a desktop application for classifying chest X-ray images to detect the presence of pneumonia. Built using **Tkinter** and **PyTorch**, the system not only classifies images but also incorporates **Grad-CAM (Gradient-weighted Class Activation Mapping)** to visualize the exact areas of the X-ray image that led to the model's decision, enhancing transparency and trust in the AI diagnosis.
 
----
+
 
 ### ✨ Features
 
@@ -14,7 +14,7 @@ This project provides a desktop application for classifying chest X-ray images t
 * **Confidence Scoring:** Displays the prediction confidence percentage for the classified class.
 * **Desktop GUI:** User-friendly interface built with the `tkinter` library.
 
----
+
 
 ### 🚀 Setup and Installation
 
