@@ -8,21 +8,24 @@ import cv2
 import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 MODEL_PATH = "pneumonia_unknown_model.pth"
 CLASSES = ["Normal", "Pneumonia", "Unknown"]
+IMG_DISPLAY_SIZE = (380, 380)
 
-model = models.resnet18(pretrained=False)
+model = models.resnet18(weights=None)
 model.fc = torch.nn.Linear(model.fc.in_features, len(CLASSES))
 
 try:
-    model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    state_dict = torch.load(MODEL_PATH, map_location=device)
+    model.load_state_dict(state_dict)
 except FileNotFoundError:
-    print(f"❌ Error: Model file not found at {MODEL_PATH}")
-    print("Please make sure 'pneumonia_unknown_model.pth' is in the same directory.")
-    exit()
+    print(f"Error: Model file not found at {MODEL_PATH}")
+    print("Please make sure 'pneumonia_unknown_model.pth' is in the same directory as app.py.")
+    raise SystemExit
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    exit()
+    print(f"Error loading model: {e}")
+    raise SystemExit
 
 model = model.to(device)
 model.eval()
@@ -45,15 +48,19 @@ class GradCAM:
     def generate(self, input_tensor, target_class=None):
         self.model.eval()
         output = self.model(input_tensor)
+
         if target_class is None:
             target_class = output.argmax(dim=1).item()
+
         self.model.zero_grad()
         output[:, target_class].backward()
+
         weights = self.gradients.mean(dim=[2, 3], keepdim=True)
         cam = (weights * self.activations).sum(dim=1).squeeze()
         cam = torch.relu(cam)
         cam = cam - cam.min()
         cam = cam / (cam.max() + 1e-8)
+
         return cam.cpu().numpy(), target_class
 
 gradcam = GradCAM(model, model.layer4[1].conv2)
@@ -64,47 +71,6 @@ transform = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406],
                          [0.229, 0.224, 0.225])
 ])
-
-IMG_DISPLAY_SIZE = (380, 380)
-
-def open_image():
-    file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png *.jpg *.jpeg")])
-    if not file_path:
-        return
-
-    img = Image.open(file_path).convert("RGB")
-
-    img_tk = ImageTk.PhotoImage(img.resize(IMG_DISPLAY_SIZE, Image.LANCZOS))
-    lbl_img.config(image=img_tk)
-    lbl_img.image = img_tk
-
-    input_tensor = transform(img).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        outputs = model(input_tensor)
-        probs = torch.softmax(outputs, dim=1)
-        pred = torch.argmax(probs).item()
-        confidence = probs[0][pred].item() * 100
-
-    lbl_result.config(
-        text=f"{CLASSES[pred]} ({confidence:.2f}%)",
-        fg="red" if CLASSES[pred] == "Pneumonia" else
-           ("green" if CLASSES[pred] == "Normal" else "orange"),
-        font=("Helvetica", 16, "bold")
-    )
-
-    cam, _ = gradcam.generate(input_tensor, pred)
-    cam = cv2.resize(cam, (224, 224))
-    img_np = np.array(img.resize((224, 224)))
-    heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
-    heatmap = np.float32(heatmap) / 255
-    overlay = 0.4 * heatmap + np.float32(img_np) / 255
-    overlay = overlay / np.max(overlay)
-    overlay_img = Image.fromarray(np.uint8(255 * overlay))
-
-    overlay_tk = ImageTk.PhotoImage(overlay_img.resize(IMG_DISPLAY_SIZE, Image.LANCZOS))
-    lbl_gradcam.config(image=overlay_tk)
-    lbl_gradcam.image = overlay_tk
 
 window = tk.Tk()
 window.title("Chest X-Ray Pneumonia Detector + Grad-CAM")
@@ -129,10 +95,10 @@ try:
     bg_label.place(x=0, y=0, relwidth=1, relheight=1)
     bg_label.image = bg_photo
 except FileNotFoundError:
-    print("⚠️ background.png not found. Using default color.")
+    print("background.png not found. Using default window color.")
     window.configure(bg="#f0f0f0")
 except Exception as e:
-    print(f"⚠️ Error loading background image: {e}")
+    print(f"Error loading background image: {e}")
     window.configure(bg="#f0f0f0")
 
 window.bind("<Configure>", resize_background)
@@ -143,7 +109,7 @@ top_frame.pack(side=tk.TOP, fill=tk.X, pady=15)
 btn_upload = Button(
     top_frame,
     text="📂 Upload X-Ray",
-    command=open_image,
+    command=lambda: open_image(),
     font=("Helvetica", 12, "bold"),
     bg="#3b6a91",
     fg="white",
@@ -153,22 +119,76 @@ btn_upload.pack()
 
 main_frame = tk.Frame(window, bg="#f0f0f0")
 main_frame.pack(expand=True, padx=20, pady=10)
+
 main_frame.grid_columnconfigure(0, weight=1)
 main_frame.grid_columnconfigure(1, weight=1)
 main_frame.grid_rowconfigure(0, weight=1)
 
 left_frame = tk.Frame(main_frame, bg="#ffffff", relief="sunken", bd=2)
-left_frame.grid(row=0, column=0, padx=10, pady=10)
-Label(left_frame, text="Original Image", font=("Helvetica", 14, "bold"), bg="#ffffff").pack(pady=(10, 5))
+left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+lbl_left_title = Label(left_frame, text="Original Image", font=("Helvetica", 14, "bold"), bg="#ffffff")
+lbl_left_title.pack(pady=(10, 5))
+
 lbl_img = Label(left_frame, bg="#ffffff")
 lbl_img.pack(pady=5, padx=10, expand=True)
 
 right_frame = tk.Frame(main_frame, bg="#ffffff", relief="sunken", bd=2)
-right_frame.grid(row=0, column=1, padx=10, pady=10)
-Label(right_frame, text="Analysis Results", font=("Helvetica", 14, "bold"), bg="#ffffff").pack(pady=(10, 5))
+right_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+lbl_right_title = Label(right_frame, text="Analysis Results", font=("Helvetica", 14, "bold"), bg="#ffffff")
+lbl_right_title.pack(pady=(10, 5))
+
 lbl_gradcam = Label(right_frame, bg="#ffffff")
 lbl_gradcam.pack(pady=5, padx=10, expand=True)
+
 lbl_result = Label(right_frame, text="Prediction:", font=("Helvetica", 14, "bold"), bg="#ffffff")
 lbl_result.pack(pady=10, side=tk.BOTTOM, fill=tk.X)
 
+def open_image():
+    file_path = filedialog.askopenfilename(
+        filetypes=[("Image Files", "*.png *.jpg *.jpeg")]
+    )
+    if not file_path:
+        return
+
+    img = Image.open(file_path).convert("RGB")
+
+    img_tk = ImageTk.PhotoImage(img.resize(IMG_DISPLAY_SIZE, Image.LANCZOS))
+    lbl_img.config(image=img_tk)
+    lbl_img.image = img_tk
+
+    input_tensor = transform(img).unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        outputs = model(input_tensor)
+        probs = torch.softmax(outputs, dim=1)
+        pred = torch.argmax(probs).item()
+        confidence = probs[0][pred].item() * 100
+
+    if CLASSES[pred] == "Pneumonia":
+        color = "red"
+    elif CLASSES[pred] == "Normal":
+        color = "green"
+    else:
+        color = "orange"
+
+    lbl_result.config(
+        text=f"{CLASSES[pred]} ({confidence:.2f}%)",
+        fg=color,
+        font=("Helvetica", 16, "bold")
+    )
+
+    cam, _ = gradcam.generate(input_tensor, pred)
+    cam = cv2.resize(cam, (224, 224))
+    img_np = np.array(img.resize((224, 224)))
+    heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
+    heatmap = np.float32(heatmap) / 255
+    overlay = 0.4 * heatmap + np.float32(img_np) / 255
+    overlay = overlay / np.max(overlay)
+    overlay_img = Image.fromarray(np.uint8(255 * overlay))
+
+    overlay_tk = ImageTk.PhotoImage(overlay_img.resize(IMG_DISPLAY_SIZE, Image.LANCZOS))
+    lbl_gradcam.config(image=overlay_tk)
+    lbl_gradcam.image = overlay_tk
 window.mainloop()
