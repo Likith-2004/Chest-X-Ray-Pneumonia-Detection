@@ -1,8 +1,0 @@
-services:
--type: web
-name: chest pneumonia detection
-env: python 
-region: oregon
-buildCommand: "pip install -r requirments.txt"
-startCommand: "python app.py"
-plan: free
