@@ -1,37 +1,65 @@
-## 🩺 Chest X-Ray Pneumonia Detector with Grad-CAM
+### 🩺 Chest X-Ray Pneumonia Detector with Grad-CAM
 
-This project provides a desktop application for classifying chest X-ray images to detect the presence of pneumonia. Built using **Tkinter** and **PyTorch**, the system not only classifies images but also incorporates **Grad-CAM (Gradient-weighted Class Activation Mapping)** to visualize the exact areas of the X-ray image that led to the model's decision, enhancing transparency and trust in the AI diagnosis.
-
-
-
-### ✨ Features
-
-* **Pneumonia Classification:** Classifies uploaded X-ray images into one of three categories:
-    * **Normal** (Green)
-    * **Pneumonia** (Red)
-    * **Unknown** (Orange - for uncertain or out-of-distribution inputs)
-* **Visual Explainability:** Integrates **Grad-CAM** to generate a heatmap overlay, highlighting the region(s) of interest (ROI) the model focused on for its prediction.
-* **Confidence Scoring:** Displays the prediction confidence percentage for the classified class.
-* **Desktop GUI:** User-friendly interface built with the `tkinter` library.
+## Overview
+The **Chest X-Ray Pneumonia Detector** project leverages a Convolutional Neural Network (CNN) model (ResNet-18) to classify chest X-ray images for the detection of pneumonia. By automating this detection process, the system enables fast and reliable pre-screening. The project is designed to enhance diagnostic confidence by including Grad-CAM (Gradient-weighted Class Activation Mapping) to visualize the areas of the X-ray image that led to the model's prediction.
 
 
+## Features
+- **Pneumonia Detection & Classification:** Identifies X-ray images as Normal, Pneumonia, or Unknown using a pre-trained CNN model.
+- **Visual Explainability (Grad-CAM):** Provides a visual heatmap overlay showing which regions of the X-ray the model focused on.
+- **Desktop GUI:** Provides a user-friendly Tkinter desktop application for easy interaction.
+- **Efficient and Reliable:** Assists medical professionals by providing fast and reliable initial detection.
 
-### 🚀 Setup and Installation
+## Installation
 
-To run this application, you will need Python and several essential libraries, including PyTorch and OpenCV.
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/Likith-2004/Chest-X-Ray-Pneumonia-Detection.git
+cd Chest-X-Ray-Pneumonia-Detection
+   
+2. **Set up a Virtual Environment (Optional but Recommended)**:
+   ```bash
+   python3 -m venv env
+   source env/bin/activate  # On Windows use `env\Scripts\activate`
 
-#### 1. Prerequisites
+3. **Install Dependencies**:
 
-* Python 3.11
-* The trained PyTorch model file: **`pneumonia_unknown_model.pth`**
-* (Optional) A background image file: **`background.png`**
+   ```bash
+   pip install -r requirements.txt
+Download and Place the Model: Ensure pneumonia_unknown_model.pth is in the root directory of the project. This is the trained PyTorch CNN model for detecting pneumonia.
 
-#### 2. Install Dependencies
 
-Install the required libraries using pip:
+## Run the application:
 
-```bash
-# Core Libraries
-pip install torch torchvision numpy
-# GUI and Image Processing Libraries
-pip install pillow opencv-python
+   ```bash
+   python app.py
+```
+
+
+Access the Application: The Tkinter desktop GUI will open automatically.
+
+Upload an Image: Use the upload feature to test the model by uploading a chest X-ray image. The system will analyze the image and display the classification, confidence score, and the Grad-CAM heatmap.
+
+## Model
+
+The detection relies on a modified ResNet-18 CNN model. The model's weights are loaded from pneumonia_unknown_model.pth. It is specifically trained to classify X-ray images into Normal, Pneumonia, or Unknown using advanced deep learning techniques (PyTorch) to achieve accurate results.
+
+## Technologies Used :
+
+- **Python**: Core programming language.
+- **Tkinter**: Library used for building the cross-platform desktop GUI.
+- **PyTorch/Torchvision**: Frameworks used to develop, train, and deploy the CNN model.
+- **OpenCV(cv2)/PIL(Pillow)**: Used for image processing, transformations, and generating the Grad-CAM visualization.
+
+## Contributing
+Contributions are welcome! Please follow these steps to contribute:
+
+
+## Fork the repository :
+  Create a new branch (git checkout -b feature-branch).
+  Make your changes and commit them (git commit -m 'Add new feature').
+  Push to the branch (git push origin feature-branch).
+  Open a Pull Request.
+
+## License
+  This project is licensed under the MIT License. See the LICENSE file for details.
