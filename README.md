@@ -1,63 +1,296 @@
-### Chest X-Ray Pneumonia Detector with Grad-CAM
+# 🌟 Chest X-Ray Pneumonia Detection Using ResNet18 + Explainable AI (Grad-CAM) + Tkinter GUI
 
-## Overview
-The **Chest X-Ray Pneumonia Detector** project leverages a Convolutional Neural Network (CNN) model (ResNet-18) to classify chest X-ray images for the detection of pneumonia. By automating this detection process, the system enables fast and reliable pre-screening. The project is designed to enhance diagnostic confidence by including Grad-CAM (Gradient-weighted Class Activation Mapping) to visualize the areas of the X-ray image that led to the model's prediction.
+An advanced Deep Learning-powered Desktop Application that detects Pneumonia, differentiates Normal X-rays, and even flags Unknown/Non-X-ray images using a custom-trained ResNet18 model.
 
+This project also integrates Explainable AI via Grad-CAM, providing visual heatmaps that show where the model is focusing while making predictions.
 
-## Features
-- **Pneumonia Detection & Classification:** Identifies X-ray images as Normal, Pneumonia, or Unknown using a pre-trained CNN model.
-- **Visual Explainability (Grad-CAM):** Provides a visual heatmap overlay showing which regions of the X-ray the model focused on.
-- **Desktop GUI:** Provides a user-friendly Tkinter desktop application for easy interaction.
-- **Efficient and Reliable:** Assists medical professionals by providing fast and reliable initial detection.
+✔ Fully Offline (no internet needed)  
+✔ Clean Tkinter GUI  
+✔ Medical-Grade Explainability  
+✔ 3-Class Classification: NORMAL, PNEUMONIA, UNKNOWN
 
-## Installation
+---
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/Likith-2004/Chest-X-Ray-Pneumonia-Detection.git
-cd Chest-X-Ray-Pneumonia-Detection
-   
-2. **Set up a Virtual Environment (Optional but Recommended)**:
-   ```bash
-   python3 -m venv env
-   source env/bin/activate  # On Windows use `env\Scripts\activate`
+## 📑 Table of Contents
 
-3. **Install Dependencies**:
+- [📌 Overview](#-overview)
+- [📂 Dataset Description](#-dataset-description)
+- [🚀 Features](#-features)
+- [🧠 Model Architecture](#-model-architecture)
+- [📊 Exploratory Data Analysis (EDA)](#-exploratory-data-analysis-eda)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [⚙️ Installation Guide](#️-installation-guide)
+- [🖼️ Application Preview](#️-application-preview)
+- [🏃 Running the App](#-running-the-app)
+- [📈 Model Results](#-model-results)
+- [🧠 Explainable AI (Grad-CAM)](#-explainable-ai-grad-cam)
+- [📦 Project Structure](#-project-structure)
+- [🔮 Future Enhancements](#-future-enhancements)
+- [🙌 Acknowledgements](#-acknowledgements)
 
-   ```bash
-   pip install -r requirements.txt
-Download and Place the Model: Ensure pneumonia_unknown_model.pth is in the root directory of the project. This is the trained PyTorch CNN model for detecting pneumonia.
+---
 
+## 📌 Overview
 
-## Run the application:
+Pneumonia is a life-threatening lung infection that requires early and accurate diagnosis.
+Radiologists analyze chest X-rays manually, which is time-consuming and error-prone.
 
-   ```bash
-   python app.py
+This project builds an **AI-based Diagnostic Assistant** that:
+
+- Automatically classifies chest X-ray images into:
+  **NORMAL**, **PNEUMONIA**, **UNKNOWN**
+
+- Displays **Grad-CAM heatmaps** for transparency and medical interpretability.
+
+- Provides a user-friendly GUI built using **Tkinter**.
+
+- Runs fully offline, without GPUs or heavy dependencies during inference.
+
+This makes the system suitable for:
+
+- Hospitals
+- Mobile clinics
+- Low-resource settings
+- Academic research
+
+---
+
+## 📂 Dataset Description
+
+The dataset used for training and evaluation is a balanced 3-class dataset:
+
+🔗 **Kaggle Dataset Link**
+
+👉 [https://www.kaggle.com/datasets/vklikith/pneumonia-balanced](https://www.kaggle.com/datasets/vklikith/pneumonia-balanced)
+
+### Dataset Structure
+```
+pneumonia-balanced/
+ └── Balanced/
+      ├── train/
+      │     ├── NORMAL
+      │     ├── PNEUMONIA
+      │     └── UNKNOWN
+      ├── val/
+      └── test/
 ```
 
+### Class Distribution (Balanced)
 
-Access the Application: The Tkinter desktop GUI will open automatically.
+- **NORMAL** – equal representation
+- **PNEUMONIA** – equal representation
+- **UNKNOWN** – includes non-X-ray images to improve robustness
 
-Upload an Image: Use the upload feature to test the model by uploading a chest X-ray image. The system will analyze the image and display the classification, confidence score, and the Grad-CAM heatmap.
+---
 
-## Model
+## 🚀 Features
 
-The detection relies on a modified ResNet-18 CNN model. The model's weights are loaded from pneumonia_unknown_model.pth. It is specifically trained to classify X-ray images into Normal, Pneumonia, or Unknown using advanced deep learning techniques (PyTorch) to achieve accurate results.
+### 🩺 1. Pneumonia Detection
 
-## Technologies Used :
+Classifies X-ray images using a custom-trained ResNet18 model.
 
-- **Python**: Core programming language.
-- **Tkinter**: Library used for building the cross-platform desktop GUI.
-- **PyTorch/Torchvision**: Frameworks used to develop, train, and deploy the CNN model.
-- **OpenCV(cv2)/PIL(Pillow)**: Used for image processing, transformations, and generating the Grad-CAM visualization.
+### 🧪 2. Unknown Image Identification
 
-## Contributing
-Contributions are welcome! Please follow these steps to contribute:
+If a user uploads a non-X-ray or irrelevant image, the model predicts **UNKNOWN**.
 
+### 🔥 3. Explainability with Grad-CAM
 
-## Fork the repository :
-- Create a new branch (git checkout -b feature-branch).
-- Make your changes and commit them (git commit -m 'Add new feature').
-- Push to the branch (git push origin feature-branch).
-- Open a Pull Request.
+Heatmaps show which areas the model used for its prediction → increases trust.
 
+### 💻 4. Graphical User Interface
+
+Intuitive Tkinter GUI:
+
+- Upload X-ray images
+- View predictions
+- See Grad-CAM overlay
+
+### 📊 5. Full EDA Included
+
+- Class distribution
+- Pixel intensity analysis
+- Heatmaps
+- Dimension scatter plots
+
+### 📈 6. High Accuracy
+
+Achieves excellent performance on train/val/test splits (Confusion Matrix + ROC curves included).
+
+---
+
+## 🧠 Model Architecture
+
+- **Base Model:** ResNet18
+- **Pretrained Weights:** ImageNet
+- **Modified Output Layer:** 3 neurons → NORMAL, PNEUMONIA, UNKNOWN
+- **Loss Function:** CrossEntropyLoss
+- **Optimizer:** Adam
+
+### Evaluation Metrics:
+
+- Accuracy
+- Confusion Matrix
+- ROC-AUC
+- Classification Report
+
+---
+
+## 📊 Exploratory Data Analysis (EDA)
+
+Performed on Kaggle Notebook:
+
+- Class distribution chart
+- Train/Val/Test split distribution
+- Heatmap of class counts
+- Sample X-ray visualization
+- Pixel intensity KDE
+- Correlation heatmap
+- Image dimension scatter
+
+**EDA ensures:**
+
+✔ Balanced dataset  
+✔ Proper preprocessing  
+✔ No corrupted images  
+✔ Consistent dimensions
+
+---
+
+## 🛠️ Tech Stack
+
+| Component       | Technology                      |
+|-----------------|---------------------------------|
+| Deep Learning   | PyTorch, TorchVision            |
+| Model           | ResNet18 + Custom FC Layer      |
+| Explainability  | Grad-CAM                        |
+| GUI             | Tkinter (Python Standard Library)|
+| Visualization   | Matplotlib, Seaborn             |
+| Dataset         | Kaggle                          |
+| Notebook        | Kaggle GPU Runtime              |
+
+---
+
+## ⚙️ Installation Guide
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Likith-2004/Chest-X-Ray-Pneumonia-Detection.git
+cd Chest-X-Ray-Pneumonia-Detection
+```
+
+### 2️⃣ Create a Virtual Environment
+```bash
+python -m venv chest
+source chest/bin/activate     # Mac/Linux
+chest\Scripts\activate        # Windows
+```
+
+### 3️⃣ Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4️⃣ Place Model File
+
+Download from Kaggle training:
+
+- `pneumonia_unknown_model.pth`
+
+Place it inside the project folder.
+
+---
+
+## 🖼️ Application Preview
+
+### 🟦 GUI Interface
+
+- **Left:** Original Uploaded Image
+- **Right:** Grad-CAM Heatmap
+- **Bottom/Top:** Prediction with Confidence Score
+
+Smooth, simple, and professional.
+
+---
+
+## 🏃 Running the App
+```bash
+python app.py
+```
+
+Then:
+
+1. Click **Upload X-Ray**
+2. See prediction instantly
+3. View Grad-CAM heatmap
+4. **UNKNOWN** prediction appears for irrelevant images
+
+---
+
+## 📈 Model Results
+
+### Metrics Achieved:
+
+- High Train & Validation Accuracy
+- High Test Accuracy
+- Strong class separation in Confusion Matrix
+- High ROC-AUC scores for all classes
+
+### Outputs:
+
+✔ `confusion_matrix.png`  
+✔ `roc_curves.png`  
+✔ `classification_report.txt`
+
+---
+
+## 🧠 Explainable AI (Grad-CAM)
+
+Grad-CAM was integrated to:
+
+- Highlight infection regions
+- Provide medical interpretability
+- Build trust with healthcare professionals
+
+### Heatmaps show:
+
+- Hotspots in lungs for pneumonia
+- Clear lungs for normal
+- Random focus for unknown images
+
+---
+
+## 📦 Project Structure
+```
+📁 pneumonia-detection/
+│── app.py                     → Tkinter GUI
+│── pneumonia_unknown_model.pth → Trained Model
+│── eda.ipynb                  → EDA Notebook
+│── training.ipynb             → Training Notebook
+│── requirements.txt
+│── README.md
+│── outputs/
+     ├── confusion_matrix.png
+     ├── roc_curves.png
+     └── classification_report.txt
+```
+
+---
+
+## 🔮 Future Enhancements
+
+- Deploy as a Flask or Streamlit web app
+- Add more diseases (Tuberculosis, COVID-19)
+- Use EfficientNet or Vision Transformers
+- Optimize model for mobile deployment
+- Add batch prediction mode
+
+---
+
+## 🙌 Acknowledgements
+
+Special thanks to:
+
+- **Kaggle** for dataset hosting
+- **PyTorch team** for open-source deep learning tools
+- **Stanford & NIH** Chest X-Ray research teams
+- All contributors & researchers working on medical AI
