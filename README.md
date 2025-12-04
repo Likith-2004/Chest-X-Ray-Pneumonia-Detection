@@ -61,5 +61,3 @@ Contributions are welcome! Please follow these steps to contribute:
 - Push to the branch (git push origin feature-branch).
 - Open a Pull Request.
 
-## License
-  This project is licensed under the MIT License. See the LICENSE file for details.
