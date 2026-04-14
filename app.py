@@ -10,6 +10,8 @@ import os
 import base64
 from io import BytesIO
 import json
+import urllib.request
+import urllib.error
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -23,8 +25,28 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Model configuration
 MODEL_PATH = "pneumonia_unknown_model.pth"
+MODEL_URL = "https://github.com/Likith-2004/Chest-X-Ray-Pneumonia-Detection/releases/download/v1.0.0/pneumonia_unknown_model.pth"
 CLASSES = ["Normal", "Pneumonia", "Unknown"]
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}
+
+# Download model from GitHub if not exists
+def download_model():
+    """Download model from GitHub Releases if not present locally"""
+    if os.path.exists(MODEL_PATH):
+        print(f"✅ Model found at {MODEL_PATH}")
+        return True
+    
+    print(f"📥 Downloading model from GitHub Releases...")
+    try:
+        urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+        print(f"✅ Model downloaded successfully to {MODEL_PATH}")
+        return True
+    except urllib.error.URLError as e:
+        print(f"❌ Failed to download model: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Error downloading model: {e}")
+        return False
 
 # Load model
 def load_model():
@@ -32,13 +54,20 @@ def load_model():
     model.fc = torch.nn.Linear(model.fc.in_features, len(CLASSES))
     
     try:
+        # Try to download model if not exists
+        if not os.path.exists(MODEL_PATH):
+            if not download_model():
+                raise Exception("Could not download model from GitHub Releases")
+        
+        # Load model weights
         state_dict = torch.load(MODEL_PATH, map_location=device)
         model.load_state_dict(state_dict)
         model = model.to(device)
         model.eval()
+        print("✅ Model loaded successfully")
         return model
     except FileNotFoundError:
-        raise Exception(f"Model file not found at {MODEL_PATH}")
+        raise Exception(f"Model file not found at {MODEL_PATH} and download failed")
     except Exception as e:
         raise Exception(f"Error loading model: {e}")
 
